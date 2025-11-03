@@ -11,7 +11,7 @@ a{color:var(--char);text-decoration:none}
 .nav a{margin-left:18px}
 .btn{border:1px solid var(--gold);padding:10px 16px;border-radius:999px}
 .btn-primary{background:var(--gold);color:#fff;border-color:var(--gold)}
-.hero{position:relative;display:grid;place-items:center;min-height:68vh;background:linear-gradient(180deg,#fff, #fff0 60%), url('/assets/img/texture.jpg') center/cover}
+.hero{position:relative;display:grid;place-items:center;min-height:68vh;background:linear-gradient(180deg,#fff, #fff0 60%), url('/assets/img/texture.svg') center/cover}
 .hero-inner{max-width:760px;text-align:center;padding:48px 16px}
 .hero h1{font-size:40px;margin:0 0 12px}
 .hero p{font-size:18px;color:#333;margin:0 0 18px}
