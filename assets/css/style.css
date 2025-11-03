@@ -1,0 +1,34 @@
+:root{
+  --gold:#C9A65B; --char:#1D1D1F; --paper:#FAFAF8; --beige:#EFE9DF;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--char);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+h1,h2,h3{font-family:"Playfair Display",serif;letter-spacing:.2px}
+a{color:var(--char);text-decoration:none}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10}
+.nav .brand{display:flex;align-items:center;gap:10px;font-weight:600}
+.nav img{height:36px;width:auto}
+.nav a{margin-left:18px}
+.btn{border:1px solid var(--gold);padding:10px 16px;border-radius:999px}
+.btn-primary{background:var(--gold);color:#fff;border-color:var(--gold)}
+.hero{position:relative;display:grid;place-items:center;min-height:68vh;background:linear-gradient(180deg,#fff, #fff0 60%), url('/assets/img/texture.jpg') center/cover}
+.hero-inner{max-width:760px;text-align:center;padding:48px 16px}
+.hero h1{font-size:40px;margin:0 0 12px}
+.hero p{font-size:18px;color:#333;margin:0 0 18px}
+.cta-row{display:flex;gap:12px;justify-content:center}
+.hero-mark{position:absolute;font-family:"Playfair Display",serif;color:rgba(201,166,91,.12);font-size:28vw;line-height:1;user-select:none}
+.trust{padding:24px 16px;background:var(--beige);border-top:1px solid #e9e3d6;border-bottom:1px solid #e9e3d6}
+.trust ul{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin:0;padding:0;list-style:none}
+.teaser{padding:48px 16px}
+.teaser h2,.reviews h2{text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:16px}
+.grid img{width:100%;height:320px;object-fit:cover;border-radius:12px;border:1px solid #eee}
+.reviews{padding:32px 16px;background:#fff}
+.quotes{display:grid;gap:12px;max-width:900px;margin:0 auto}
+blockquote{margin:0;padding:18px;border:1px solid #eee;border-radius:12px;background:#fff}
+.cta-band{display:grid;place-items:center;padding:28px 16px;background:#fff;border-top:1px solid #eee}
+.footer{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;padding:24px 16px;border-top:1px solid #eee;background:#fff}
+.footer .ring{height:60px;filter:grayscale(1) contrast(.9) opacity(.8)}
+@media (max-width:600px){
+  .hero h1{font-size:30px}
+}
