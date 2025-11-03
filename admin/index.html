@@ -61,6 +61,32 @@
   <button id="saveContent">Save Content</button>
 </section>
 
+<section class="card">
+  <h3>Site Owner / Contact Settings</h3>
+  <div class="row">
+    <input id="ownerName" placeholder="Owner name (e.g. Kulsum Huda)" />
+    <input id="ownerInsta" placeholder="Instagram handle or URL" />
+    <input id="ownerWhatsApp" placeholder="WhatsApp number (91...)" />
+  </div>
+  <p>Google Sheets endpoint (optional):</p>
+  <input id="sheetsEndpoint" placeholder="https://script.google.com/macros/s/…/exec" />
+  <div style="margin-top:10px">
+    <button id="saveSettings">Save Settings</button>
+    <button id="exportSubmissions">Export Submissions (CSV)</button>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Gallery: add images</h3>
+  <p>Upload images here to add them to the site gallery (images are stored in your browser localStorage). For permanent hosting, place images into <code>assets/img/</code> and update the gallery entries.</p>
+  <div class="row">
+    <input id="adminImgFile" type="file" accept="image/*" />
+    <input id="adminImgAlt" placeholder="Alt text" />
+    <button id="addImg">Add to Gallery</button>
+  </div>
+  <div id="galleryAdmin"></div>
+</section>
+
 <script src="js/app.js"></script>
 </body>
 </html>

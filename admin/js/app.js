@@ -1,78 +1,91 @@
-const API = 'https://your-admin-api.example.com'; // replace with your deployed API base
+// Lightweight admin JS that works without a backend.
+// - Gallery images and site settings are stored in localStorage.
+// - Optionally, set a Google Apps Script web app URL in Settings to forward contact form submissions to a Google Sheet.
 
-let token = localStorage.getItem('kh_token') || '';
+const setStatus = (msg)=>{ const s = document.getElementById('status'); if(s) s.textContent = msg; };
 
-const setStatus = (msg)=>{ document.getElementById('status').textContent = msg; };
-
-document.getElementById('loginBtn').onclick = async ()=>{
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const r = await fetch(`${API}/auth/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
-  if(r.ok){
-    const data = await r.json();
-    token = data.token;
-    localStorage.setItem('kh_token', token);
-    setStatus('Logged in.');
-    loadData();
-  } else setStatus('Login failed.');
-};
-
-document.getElementById('logoutBtn').onclick = ()=>{
-  token = ''; localStorage.removeItem('kh_token'); setStatus('Logged out.');
-};
-
-async function authFetch(url, options={}){
-  options.headers = Object.assign({'Authorization':`Bearer ${token}`,'Accept':'application/json'}, options.headers||{});
-  return fetch(url, options);
+function saveSettings(){
+  const settings = {
+    ownerName: document.getElementById('ownerName').value.trim(),
+    ownerInsta: document.getElementById('ownerInsta').value.trim(),
+    ownerWhatsApp: document.getElementById('ownerWhatsApp').value.trim(),
+    sheetsEndpoint: document.getElementById('sheetsEndpoint').value.trim(),
+  };
+  localStorage.setItem('kh_settings', JSON.stringify(settings));
+  setStatus('Settings saved.');
+  // notify main window (site) via storage event if open
 }
 
-document.getElementById('savePkg').onclick = async ()=>{
-  const name = document.getElementById('pkgName').value.trim();
-  const price = +document.getElementById('pkgPrice').value;
-  const notes = document.getElementById('pkgNote').value.trim();
-  const r = await authFetch(`${API}/prices`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,price,notes})});
-  setStatus(r.ok ? 'Saved package.' : 'Error saving.');
-  loadPrices();
+function loadSettings(){
+  const s = JSON.parse(localStorage.getItem('kh_settings')||'{}');
+  if(s.ownerName) document.getElementById('ownerName').value = s.ownerName;
+  if(s.ownerInsta) document.getElementById('ownerInsta').value = s.ownerInsta;
+  if(s.ownerWhatsApp) document.getElementById('ownerWhatsApp').value = s.ownerWhatsApp;
+  if(s.sheetsEndpoint) document.getElementById('sheetsEndpoint').value = s.sheetsEndpoint;
+}
+
+function getGallery(){
+  return JSON.parse(localStorage.getItem('kh_gallery')||'[]');
+}
+
+function renderGalleryAdmin(){
+  const list = getGallery();
+  const c = document.getElementById('galleryAdmin');
+  if(!c) return;
+  c.innerHTML = list.map((g,idx)=>`<div style="display:inline-block;margin:6px;text-align:center;max-width:140px"><img src="${g.data}" alt="${(g.alt||'')}]" style="height:80px;border:1px solid #eee;border-radius:8px;display:block;margin-bottom:6px"/><div style="font-size:12px">${g.alt||''}</div><button data-idx="${idx}" class="removeImg">Remove</button></div>`).join('');
+  c.querySelectorAll('.removeImg').forEach(btn=>btn.onclick = ()=>{
+    const idx = +btn.dataset.idx;
+    const arr = getGallery(); arr.splice(idx,1); localStorage.setItem('kh_gallery', JSON.stringify(arr)); renderGalleryAdmin();
+  });
+}
+
+document.getElementById('saveSettings').onclick = saveSettings;
+document.getElementById('exportSubmissions').onclick = ()=>{
+  const subs = JSON.parse(localStorage.getItem('kh_submissions')||'[]');
+  if(!subs.length) return setStatus('No submissions to export.');
+  const csv = toCSV(subs);
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'submissions.csv';
+  a.click();
 };
 
-document.getElementById('uploadBtn').onclick = async ()=>{
-  const f = document.getElementById('imgFile').files[0];
-  if(!f) return setStatus('Choose an image.');
-  const fd = new FormData();
-  fd.append('file', f);
-  fd.append('tag', document.getElementById('imgTag').value);
-  fd.append('alt', document.getElementById('imgAlt').value);
-  const r = await authFetch(`${API}/gallery`, {method:'POST', body:fd});
-  setStatus(r.ok ? 'Uploaded image.' : 'Upload failed.');
-  loadGallery();
+document.getElementById('addImg').onclick = async ()=>{
+  const f = document.getElementById('adminImgFile').files[0];
+  if(!f) return setStatus('Choose an image to add.');
+  const alt = document.getElementById('adminImgAlt').value.trim();
+  const data = await fileToDataURL(f);
+  const arr = getGallery(); arr.push({data, alt}); localStorage.setItem('kh_gallery', JSON.stringify(arr));
+  renderGalleryAdmin();
+  setStatus('Added to gallery (stored in browser).');
 };
 
-document.getElementById('saveContent').onclick = async ()=>{
+function fileToDataURL(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader(); r.onload = ()=>res(r.result); r.onerror = rej; r.readAsDataURL(file);
+  });
+}
+
+function toCSV(arr){
+  const keys = Object.keys(arr[0]||{});
+  const esc = v => `"${String(v||'').replace(/"/g,'""')}"`;
+  return [keys.map(esc).join(','), ...arr.map(o => keys.map(k=>esc(o[k])).join(','))].join('\n');
+}
+
+// Content save (hero)
+document.getElementById('saveContent').onclick = ()=>{
   const hero = document.getElementById('heroText').value;
   const sub = document.getElementById('heroSub').value;
-  const r = await authFetch(`${API}/content/hero`, {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({hero,sub})});
-  setStatus(r.ok ? 'Content saved.' : 'Error saving content.');
+  const c = {hero,sub};
+  localStorage.setItem('kh_content', JSON.stringify(c));
+  setStatus('Content saved.');
 };
 
-async function loadPrices(){
-  const r = await fetch(`${API}/prices`);
-  const list = r.ok ? await r.json() : [];
-  document.querySelector('#pkgTable tbody').innerHTML =
-    list.map(p=>`<tr><td>${p.name}</td><td>₹${p.price.toLocaleString('en-IN')}</td><td>${p.notes||''}</td><td><button data-id="${p.id}" class="del">Delete</button></td></tr>`).join('');
-  document.querySelectorAll('.del').forEach(btn=>btn.onclick = async ()=>{
-    await authFetch(`${API}/prices/${btn.dataset.id}`, {method:'DELETE'}); loadPrices();
-  });
+// Contact submissions exported from contact form (see /contact.html). Admin can also export as CSV.
+function addSubmission(obj){
+  const arr = JSON.parse(localStorage.getItem('kh_submissions')||'[]'); arr.push(obj); localStorage.setItem('kh_submissions', JSON.stringify(arr));
 }
 
-async function loadGallery(){
-  const r = await fetch(`${API}/gallery`);
-  const list = r.ok ? await r.json() : [];
-  document.getElementById('galleryAdmin').innerHTML =
-    list.map(g=>`<div style="display:inline-block;margin:6px"><img src="${g.url}" alt="" style="height:120px;border:1px solid #eee;border-radius:8px"/><div style="text-align:center"><button data-id="${g.id}" class="delg">Delete</button></div></div>`).join('');
-  document.querySelectorAll('.delg').forEach(btn=>btn.onclick = async ()=>{
-    await authFetch(`${API}/gallery/${btn.dataset.id}`, {method:'DELETE'}); loadGallery();
-  });
-}
+// Initialize
+loadSettings(); renderGalleryAdmin();
 
-async function loadData(){ loadPrices(); loadGallery(); }
-if(token) loadData();
