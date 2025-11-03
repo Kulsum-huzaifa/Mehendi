@@ -7,7 +7,7 @@ if (teaser){
   if(stored.length){
     teaser.innerHTML = stored.map(g=>`<img src="${g.data}" alt="${g.alt||'Bridal mehendi by Kulsum Huda'}" loading="lazy" />`).join('');
   } else {
-    const imgs = ['/assets/img/sample1.svg','/assets/img/sample2.svg','/assets/img/sample3.svg','/assets/img/sample4.svg','/assets/img/sample5.svg','/assets/img/sample6.svg'];
+    const imgs = ['../img/sample1.svg','../img/sample2.svg','../img/sample3.svg','../img/sample4.svg','../img/sample5.svg','../img/sample6.svg'];
     teaser.innerHTML = imgs.map(src => `<img src="${src}" alt="Bridal mehendi by Kulsum Huda" loading="lazy" />`).join('');
   }
 }
